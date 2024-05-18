@@ -10,7 +10,6 @@ from sklearn.metrics.pairwise import cosine_similarity
 import io
 import docx2txt
 from PyPDF2 import PdfReader
-import plotly.express as px
 
 def get_sentences(text):
     sentences = tokenize.sent_tokenize(text)
