@@ -10,6 +10,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 import io
 import docx2txt
 from PyPDF2 import PdfReader
+import plotly.express as px
 
 def get_sentences(text):
     sentences = tokenize.sent_tokenize(text)
@@ -37,8 +38,8 @@ def get_url(sentence):
 
 def read_text_file(file):
     content = ""
-    with io.open(file.name, 'r', encoding='utf-8') as f:
-        content = f.read()
+    file.seek(0)  # Đảm bảo bắt đầu đọc từ đầu tệp
+    content = file.read().decode('utf-8')  # Đọc nội dung tệp dưới dạng chuỗi
     return content
 
 def read_docx_file(file):
@@ -56,14 +57,12 @@ def get_text_from_file(uploaded_file):
     content = ""
     if uploaded_file is not None:
         if uploaded_file.type == "text/plain":
-            content = uploaded_file.getvalue().decode("utf-8")
+            content = read_text_file(uploaded_file)
         elif uploaded_file.type == "application/pdf":
             content = read_pdf_file(uploaded_file)
         elif uploaded_file.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
             content = read_docx_file(uploaded_file)
     return content
-
-
 
 def get_text(url):
     response = requests.get(url)
@@ -81,12 +80,13 @@ def get_similarity(text1, text2):
 def get_similarity_list(texts, filenames=None):
     similarity_list = []
     if filenames is None:
-        filenames = [f"File {i+1}" for i in range(len(texts))]
+        filenames = [f"Tệp {i+1}" for i in range(len(texts))]
     for i in range(len(texts)):
         for j in range(i+1, len(texts)):
             similarity = get_similarity(texts[i], texts[j])
             similarity_list.append((filenames[i], filenames[j], similarity))
     return similarity_list
+
 def get_similarity_list2(text, url_list):
     similarity_list = []
     for url in url_list:
@@ -95,23 +95,21 @@ def get_similarity_list2(text, url_list):
         similarity_list.append(similarity)
     return similarity_list
 
-
-
-st.set_page_config(page_title='Phát hiện đạo văn')
-st.title('Công cụ phát hiện đạo văn')
+st.set_page_config(page_title='Phát hiện Đạo văn')
+st.title('Web kiểm tra đạo văn')
 
 st.write("""
-### Nhập văn bản hoặc tải lên tệp để kiểm tra đạo văn
+### Nhập văn bản hoặc tải lên tệp để kiểm tra đạo văn hoặc tìm sự Tỷ lệ giữa các file văn bản.
 """)
 option = st.radio(
-    "Chọn tùy chọn đầu vào:",
-    ('Kiểm tra văn bản', 'Kiểm tra file', 'Kiểm tra nhiều file với nhau')
+    "Chọn chức năng tương ứng:",
+    ('Nhập văn bản', 'Kiểm tra tệp văn bản', 'So sánh giữa các tệp văn bản')
 )
 
 if option == 'Nhập văn bản':
     text = st.text_area("Nhập văn bản vào đây", height=200)
     uploaded_files = []
-elif option == 'Tải lên tệp':
+elif option == 'Kiểm tra tệp văn bản':
     uploaded_file = st.file_uploader("Tải lên tệp (.docx, .pdf, .txt)", type=["docx", "pdf", "txt"])
     if uploaded_file is not None:
         text = get_text_from_file(uploaded_file)
@@ -133,41 +131,37 @@ else:
 if st.button('Kiểm tra đạo văn'):
     if not text:
         st.write("""
-        ### Không tìm thấy các tài liệu liên quan
+        ### Không tìm thấy văn bản để kiểm tra đạo văn hoặc để so sánh.
         """)
         st.stop()
-
-    # Tính tổng phần trăm tương đồng
-    total_similarity = 0.0
-
-    if option == 'Tìm sự tương đồng giữa các tệp':
+    
+    if option == 'So sánh giữa các tệp văn bản':
         similarities = get_similarity_list(texts, filenames)
-        total_similarity = sum(similarity[2] for similarity in similarities) / len(similarities)
+        df = pd.DataFrame(similarities, columns=['Tệp 1', 'Tệp 2', 'Tỷ lệ'])
+        df['Tỷ lệ'] = df['Tỷ lệ'].apply(lambda x: "{:.2f}%".format(x * 100))  # Định dạng tỷ lệ đạo văn thành phần trăm
+        df = df.sort_values(by=['Tỷ lệ'], ascending=False)
     else:
         sentences = get_sentences(text)
-        urls = []
+        url = []
         for sentence in sentences:
-            urls.append(get_url(sentence))
+            url.append(get_url(sentence))
 
-        if None in urls:
+        if None in url:
             st.write("""
             ### Không phát hiện đạo văn!
             """)
             st.stop()
 
-        similarity_list = get_similarity_list2(text, urls)
-        total_similarity = sum(similarity for similarity in similarity_list) / len(similarity_list)
+        similarity_list = get_similarity_list2(text, url)
+        total_similarity = sum(similarity_list) / len(similarity_list) * 100 if similarity_list else 0
+        st.write("Tổng tỷ lệ đạo văn của toàn bộ văn bản: {:.2f}%".format(total_similarity))
+    
+        df = pd.DataFrame({'Câu': sentences, 'URL': url, 'Tỷ lệ': similarity_list})
+        df['Tỷ lệ'] = df['Tỷ lệ'].apply(lambda x: "{:.2f}%".format(x * 100))  # Định dạng tỷ lệ đạo văn thành phần trăm
+        df = df.sort_values(by=['Tỷ lệ'], ascending=True)
 
-    st.write(f"### Tỷ lệ đạo văn: {total_similarity:.0%}")
 
-
-    if option == 'Tìm sự tương đồng giữa các tệp':
-        df = pd.DataFrame(similarities, columns=['Tệp 1', 'Tệp 2', 'Giống nhau'])
-        df = df.sort_values(by=['Giống nhau'], ascending=False)
-    else:
-        df = pd.DataFrame({'Câu': sentences, 'URL': urls, 'Giống nhau': similarity_list})
-        df = df.sort_values(by=['Giống nhau'], ascending=True)
-
+    
     df = df.reset_index(drop=True)
     
     # Make URLs clickable in the DataFrame
@@ -179,5 +173,4 @@ if st.button('Kiểm tra đạo văn'):
     if 'URL' in df.columns:
         df_html = df_html.replace('<th>URL</th>', '<th style="text-align: center;">URL</th>')
     st.write(df_html, unsafe_allow_html=True)
-    
-   
+
