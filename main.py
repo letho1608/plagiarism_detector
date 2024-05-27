@@ -98,7 +98,7 @@ st.set_page_config(page_title='Phát hiện Đạo văn')
 st.title('Web kiểm tra đạo văn')
 
 st.write("""
-### Nhập văn bản hoặc tải lên tệp để kiểm tra đạo văn hoặc tìm sự lỷ lệ giữa các file văn bản.
+### Nhập văn bản hoặc tải lên tệp để kiểm tra đạo văn.
 """)
 option = st.radio(
     "Chọn chức năng tương ứng:",
