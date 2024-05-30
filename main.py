@@ -37,8 +37,8 @@ def get_url(sentence):
 
 def read_text_file(file):
     content = ""
-    file.seek(0)  # Đảm bảo bắt đầu đọc từ đầu tệp
-    content = file.read().decode('utf-8')  # Đọc nội dung tệp dưới dạng chuỗi
+    file.seek(0)  
+    content = file.read().decode('utf-8')  
     return content
 
 def read_docx_file(file):
@@ -163,11 +163,10 @@ if st.button('Kiểm tra đạo văn'):
     
     df = df.reset_index(drop=True)
     
-    # Make URLs clickable in the DataFrame
+    
     if 'URL' in df.columns:
         df['URL'] = df['URL'].apply(lambda x: '<a href="{}">{}</a>'.format(x, x) if x else '')
     
-    # Center align URL column header
     df_html = df.to_html(escape=False)
     if 'URL' in df.columns:
         df_html = df_html.replace('<th>URL</th>', '<th style="text-align: center;">URL</th>')
