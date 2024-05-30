@@ -11,10 +11,12 @@ import io
 import docx2txt
 from PyPDF2 import PdfReader
 
+# Hàm chia văn bản thành các câu
 def get_sentences(text):
     sentences = tokenize.sent_tokenize(text)
     return sentences
 
+# Hàm tìm URL kết quả tìm kiếm đầu tiên từ Google cho một câu
 def get_url(sentence):
     base_url = 'https://www.google.com/search?q='
     query = sentence
@@ -35,16 +37,19 @@ def get_url(sentence):
     else:
         return urls[0]
 
+# Hàm đọc nội dung từ tệp văn bản dạng .txt
 def read_text_file(file):
     content = ""
-    file.seek(0)  
-    content = file.read().decode('utf-8')  
+    file.seek(0)  # Đảm bảo bắt đầu đọc từ đầu tệp
+    content = file.read().decode('utf-8')  # Đọc nội dung tệp dưới dạng chuỗi
     return content
 
+# Hàm đọc nội dung từ tệp văn bản dạng .docx
 def read_docx_file(file):
     text = docx2txt.process(file)
     return text
 
+# Hàm đọc nội dung từ tệp văn bản dạng .pdf
 def read_pdf_file(file):
     text = ""
     pdf_reader = PdfReader(file)
@@ -52,6 +57,7 @@ def read_pdf_file(file):
         text += page.extract_text()
     return text
 
+# Hàm đọc nội dung từ tệp văn bản (hỗ trợ các định dạng .txt, .pdf, .docx)
 def get_text_from_file(uploaded_file):
     content = ""
     if uploaded_file is not None:
@@ -63,12 +69,14 @@ def get_text_from_file(uploaded_file):
             content = read_docx_file(uploaded_file)
     return content
 
+# Hàm lấy nội dung văn bản từ một trang web
 def get_text(url):
     response = requests.get(url)
     soup = BeautifulSoup(response.text, 'html.parser')
     text = ' '.join(map(lambda p: p.text, soup.find_all('p')))
     return text
 
+# Hàm tính toán độ tương đồng giữa hai đoạn văn bản sử dụng Cosine Similarity
 def get_similarity(text1, text2):
     text_list = [text1, text2]
     cv = CountVectorizer()
@@ -76,6 +84,7 @@ def get_similarity(text1, text2):
     similarity = cosine_similarity(count_matrix)[0][1]
     return similarity
 
+# Hàm tính toán độ tương đồng giữa tất cả các cặp văn bản trong danh sách
 def get_similarity_list(texts, filenames=None):
     similarity_list = []
     if filenames is None:
@@ -86,6 +95,7 @@ def get_similarity_list(texts, filenames=None):
             similarity_list.append((filenames[i], filenames[j], similarity))
     return similarity_list
 
+# Hàm tính toán độ tương đồng giữa một đoạn văn bản và các văn bản lấy từ danh sách URL
 def get_similarity_list2(text, url_list):
     similarity_list = []
     for url in url_list:
@@ -94,6 +104,7 @@ def get_similarity_list2(text, url_list):
         similarity_list.append(similarity)
     return similarity_list
 
+# Cấu hình giao diện Streamlit
 st.set_page_config(page_title='Phát hiện Đạo văn')
 st.title('Web kiểm tra đạo văn')
 
@@ -105,6 +116,7 @@ option = st.radio(
     ('Nhập văn bản', 'Kiểm tra tệp văn bản', 'So sánh giữa các tệp văn bản')
 )
 
+# Xử lý lựa chọn của người dùng
 if option == 'Nhập văn bản':
     text = st.text_area("Nhập văn bản vào đây", height=200)
     uploaded_files = []
@@ -127,6 +139,7 @@ else:
             filenames.append(uploaded_file.name)
     text = " ".join(texts)
 
+# Xử lý khi người dùng nhấn nút "Kiểm tra đạo văn"
 if st.button('Kiểm tra đạo văn'):
     if not text:
         st.write("""
@@ -159,16 +172,14 @@ if st.button('Kiểm tra đạo văn'):
         df['Tỷ lệ'] = df['Tỷ lệ'].apply(lambda x: "{:.2f}%".format(x * 100))  # Định dạng tỷ lệ đạo văn thành phần trăm
         df = df.sort_values(by=['Tỷ lệ'], ascending=True)
 
-
-    
     df = df.reset_index(drop=True)
     
-    
+    # Làm cho các URL có thể click được trong DataFrame
     if 'URL' in df.columns:
         df['URL'] = df['URL'].apply(lambda x: '<a href="{}">{}</a>'.format(x, x) if x else '')
     
+    # Canh giữa tiêu đề cột URL
     df_html = df.to_html(escape=False)
     if 'URL' in df.columns:
         df_html = df_html.replace('<th>URL</th>', '<th style="text-align: center;">URL</th>')
     st.write(df_html, unsafe_allow_html=True)
-
