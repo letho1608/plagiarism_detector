@@ -1,6 +1,6 @@
 # Plagiarism Detector Web Application
 
-A Streamlit-based web application for detecting plagiarism in text documents and comparing multiple files for similarity.
+A Streamlit-based web application for detecting plagiarism in text documents and comparing multiple files for similarity using Ollama
 
 ## Features
 
