@@ -287,7 +287,7 @@ st.set_page_config(
     menu_items={
         'Get Help': 'https://github.com/yourusername/plagiarism-checker',
         'Report a bug': "https://github.com/yourusername/plagiarism-checker/issues",
-        'About': "# Ứng dụng Kiểm tra Đạo văn\nPhát triển bởi Tuấn Phạm"
+        'About': "# Ứng dụng Kiểm tra Đạo văn\nPhát triển bởi Tho Le"
     }
 )
 
@@ -789,7 +789,7 @@ if st.session_state.df is not None:
 st.markdown("""
     <div style='text-align: center; color: #808080; padding: 20px;'>
         <hr style='border-color: #404040;'>
-        <p>© 2024 Web Kiểm Tra Đạo Văn | Phát triển bởi Tuấn Phạm</p>
+        <p>© 2024 Web Kiểm Tra Đạo Văn | Phát triển bởi Tho Le</p>
     </div>
 """, unsafe_allow_html=True)
 
