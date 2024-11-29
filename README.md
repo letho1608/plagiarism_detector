@@ -1,4 +1,4 @@
-# Plagiarism Detection Web Application
+# Plagiarism Detector Web Application
 
 A Streamlit-based web application for detecting plagiarism in text documents and comparing multiple files for similarity.
 
