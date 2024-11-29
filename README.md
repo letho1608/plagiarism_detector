@@ -1,20 +1,70 @@
-# Function
+# Plagiarism Detection Web Application
 
-## 1. Text Input Options:
-- **Check text**: Users can enter text directly into the provided text area. This text is then compared with other texts to find similarities.
-- **Check File**: Users can upload text files (.docx, .pdf, .txt) using the file uploader. The content of the uploaded file is extracted and used to detect plagiarism.
-- **Check multiple files together**: Users can upload multiple text files. The contents of each file are compared to each other to determine similarities.
+A Streamlit-based web application for detecting plagiarism in text documents and comparing multiple files for similarity.
 
-## 2. Inspection Mechanism:
-- **Similarity**: The tool uses language models to analyze and compare texts, providing similarity scores between text passages.
-- **Single text analysis**: For input texts or uploaded files, the system calculates a similarity score between the provided text and content fetched from found URLs.
-- **Compare multiple files**: For multiple uploaded files, the tool calculates a similarity score for each pair of files, displaying results by pair.
+## Features
 
-## 3. Integrated Web Scraping:
-- **URL Extraction**: The tool extracts URLs embedded in the provided text to fetch additional content for comparison.
-- **Content fetching**: The content of each URL is collected using the BeautifulSoup library, then compared with uploaded files or input text.
+### 1. Text Analysis
+- Direct text input for plagiarism checking
+- Sentence-by-sentence analysis
+- Real-time progress tracking
+- Google search integration for source detection
 
-## 4. User Interface:
-- **Streamlit Framework**: User interface built using Streamlit, a Python library for creating web applications.
-- **File uploader**: Streamlit provides various input widgets such as text area and file uploader for user interaction.
-- **Display results**: Results, including overall similarity score and pairwise similarity score, are displayed using Streamlit's visualization capabilities.
+### 2. File Support
+- Multiple file format support:
+  - PDF (.pdf)
+  - Word (.docx)
+  - Text (.txt)
+- File preview functionality
+- Multi-file comparison
+
+### 3. Analysis Tools
+- Similarity scoring (0-100%)
+- Detailed analysis for each comparison
+- Source URL tracking
+- Customizable similarity threshold
+
+### 4. Visualization
+- Interactive charts:
+  - Bar charts
+  - Scatter plots
+  - Progress indicators
+  - Metric displays
+
+### 5. Reporting
+- Export options:
+  - PDF reports
+  - Excel spreadsheets
+- Customizable report formats
+- Timestamp-based file naming
+
+## Technical Components
+
+### Core Functions
+- **File Processing**
+- **API Integration**
+- **UI Components**
+
+### Main Layout
+- **Dark theme**
+- **Responsive design**
+- Three main tabs:
+  - Text Input
+  - File Check
+  - File Comparison
+
+### Analysis Display
+- Overview metrics
+- Interactive charts
+- Detailed results table
+
+## Dependencies
+- `streamlit`: Web interface
+- `pandas`: Data handling
+- `nltk`: Text processing
+- `beautifulsoup4`: Web scraping
+- `plotly`: Data visualization
+- `fpdf`: PDF generation
+- `xlsxwriter`: Excel report generation
+
+
